@@ -32,9 +32,20 @@ any animation behaviour until it is filled in. See §7.
    `feat:` / `fix:` / `chore:` / `refactor:`.
 
 ### Definition of done
-No task is complete until it has been seen running on a real Samsung S21 via a dev build.
-**Emulated ≠ device is proven doctrine here** — a component passed emulated 390px and failed
-on the real phone, and that is why this rule exists. Simulator screenshots are not evidence.
+No task is complete until it has been seen running on a **real iPhone** via Expo Go or a dev
+build. **Emulated ≠ device is proven doctrine here** — a component passed emulated 390px and
+failed on the real phone, and that is why this rule exists. Simulator screenshots are not
+evidence.
+
+### Platform posture
+**iOS is the focus. The iPhone is the oracle.** Android ships later off the same codebase.
+
+When a platform-specific choice arises, iOS wins the tiebreak — but never at the cost of
+writing code that cannot run on Android. No `Platform.OS === 'ios'` branch may contain
+business logic; keep those branches confined to presentation.
+
+§4's layout grammar was derived from a real-device review of an Android phone. Those rules are
+mobile-vs-desktop idiom, not Android-vs-iOS. **They hold unchanged.**
 
 ---
 
@@ -255,8 +266,8 @@ gesture layer is. Therefore:
 ### WEEK-1 DE-RISK GATE — do this before building the other fourteen
 
 Build **one** chart first: the scrubbing price chart. Highest touch-time, hardest gesture,
-worst data volume. Take it to the full feel bar. Dev-build to the S21. Thumb-test it beside
-Robinhood on the same phone.
+worst data volume. Take it to the full feel bar. Get it onto the **iPhone**. Thumb-test it
+beside Robinhood on the same phone.
 
 If it fails, one week is lost instead of two months. **Do not build chart two until chart one
 passes on the device.**
@@ -388,6 +399,41 @@ does not pretend.
 
 ---
 
+## 10b. iOS SPECIFICS
+
+- **Apple Developer Program ($99/yr) is required** to install a dev build on a physical
+  iPhone. Expo Go needs nothing, but its native module set is immutable — the first
+  `@shopify/flash-list` or Skia install ends Expo Go's usefulness. Unlike Android, there is no
+  sideload escape hatch.
+- **Sign in with Apple is mandatory**, not optional. Guideline 4.8 requires it wherever a
+  third-party login is offered, and Discord OAuth already exists in the product. Same
+  developer account, so it is one purchase covering both needs.
+- **No Mac required.** EAS builds iOS in the cloud. A Mac is a convenience for local simulator
+  debugging, never a blocker.
+- Guideline **4.2 (minimum functionality)** no longer applies — this is a real native app, not
+  a web wrapper. That risk is retired.
+- `react-native-safe-area-context` is already installed. Use it. Never hardcode inset values —
+  Dynamic Island and home-indicator geometry vary per device.
+
+### Unruled forks — do not decide these unilaterally
+
+1. **`expo-symbols` (SF Symbols) vs Lucide.** Brand Foundation specifies Lucide, and the web
+   app uses it. SF Symbols feel more native on iOS but have no Android equivalent and break
+   cross-platform brand consistency. Until ruled: **Lucide**, with system-supplied
+   affordances (nav back chevrons, share) left to the native navigator.
+2. **`expo-glass-effect` (iOS liquid glass).** It ships in the template. It also sits against
+   "lighten don't shadow" and a Bloomberg-terminal posture rather than a consumer one. Until
+   ruled: **do not use it.**
+
+### Monetization — unresolved, do not build payment UI
+
+App Store commission versus Stripe's ~3% on a $40/mo tier is a live business question with a
+shifting legal backdrop. The TWA anti-steering implementation does not transfer. **Build no
+purchase, paywall or upgrade flow until this is ruled.** Tier *display* and locked states are
+fine; a checkout path is not.
+
+---
+
 ## 11. DO NOT PORT
 
 - Any chart implementation from the web repo. All fifteen get rebuilt. Read the web version
@@ -401,9 +447,14 @@ does not pretend.
 ## 12. OPEN / OWED
 
 - **§7 motion ruling** ← blocks all animation work
+- **Apple Developer Program purchase** ← blocks dev builds, and therefore blocks the §6 chart
+  gate the moment we outgrow Expo Go
+- **Monetization ruling** ← blocks any checkout path (§10b)
+- **Icon and glass forks** ← §10b, do not decide unilaterally
 - `brand-green-900` hex — read from Brand Foundation v1
 - Component and surface inventory — **script-generated off live web HEAD at kickoff, never
   hand-written.** A hand-written inventory is a fossil the day after it is written.
 - Sign in with Apple (Cognito IdP + Apple dev config)
 - App icon refresh
-- Expo account + EAS dev build to the S21 — required before anything can be verified
+- Line-ending normalization (`.gitattributes`) — Windows git rewrites LF→CRLF, EAS builds on
+  Linux, and left alone this produces phantom whole-file diffs
