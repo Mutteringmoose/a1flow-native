@@ -25,6 +25,12 @@ const grey = {
   600: '#44474A',
   500: '#6B6F73',
   400: '#8A8E92',
+  /**
+   * Not in Brand Foundation v1's ramp — added 2026-09-12 by device ruling after
+   * grey-400 still read too dark for tab chrome on a real panel. Owed upstream
+   * to the source doc.
+   */
+  300: '#B0B4B8',
   100: '#F0F2F0',
 } as const;
 
@@ -77,6 +83,12 @@ const color = {
   premiumHairline: palette.gold300,
   navActive: palette.brandGreen500,
   navActivePressed: palette.brandGreen700,
+  /**
+   * Tab chrome only. Deliberately one step lighter than textSecondary: tab
+   * icons and labels sit on a 1px-stroke glyph at 11px and lose more contrast
+   * on a real panel than body text does at the same hex.
+   */
+  navInactive: grey[300],
 } as const;
 
 /**
