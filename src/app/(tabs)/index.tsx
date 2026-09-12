@@ -3,6 +3,7 @@ import { ScrollView } from 'react-native';
 import { MarketFutures } from '@/components/home/market-futures';
 import { Sentiment } from '@/components/home/sentiment';
 import { UndervaluedTeaser } from '@/components/home/undervalued-teaser';
+import { LeapTeaser } from '@/components/home/leap-teaser';
 import { Screen } from '@/components/screen';
 import { getHomeDashboard } from '@/lib/home';
 import { useEndpoint } from '@/lib/use-endpoint';
@@ -27,6 +28,7 @@ export default function HomeScreen() {
         <MarketFutures state={dashboard.state} retry={dashboard.retry} />
         <Sentiment state={dashboard.state} retry={dashboard.retry} />
         <UndervaluedTeaser />
+        <LeapTeaser />
       </ScrollView>
     </Screen>
   );
