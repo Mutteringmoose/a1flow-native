@@ -20,11 +20,15 @@ export default function TabLayout() {
   const insets = useSafeAreaInsets();
 
   return (
-    <Tabs style={{ backgroundColor: theme.color.surfaceCanvas }}>
+    // `flex: 1` is Tabs' own root style. Our style prop is spread *after* it
+    // internally, so passing backgroundColor alone silently drops the flex.
+    <Tabs style={{ flex: 1, backgroundColor: theme.color.surfaceCanvas }}>
       <TabSlot />
       <TabList asChild>
         <View
-          style={[
+          // Flattened, not an array: TabList `asChild` renders through <Slot>,
+          // which throws in dev if its child carries an array style.
+          style={StyleSheet.flatten([
             styles.tabRow,
             {
               backgroundColor: theme.color.surfaceCanvas,
@@ -34,7 +38,7 @@ export default function TabLayout() {
               // The row owns the bottom inset so screens do not have to.
               paddingBottom: insets.bottom || theme.space[2],
             },
-          ]}>
+          ])}>
           <TabTrigger name="scan" href="/scan" asChild>
             <TabButton icon={Radar}>Scan</TabButton>
           </TabTrigger>

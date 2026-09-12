@@ -21,7 +21,18 @@ export type TabButtonProps = TabTriggerSlotProps & {
  * haptic is the selection tick §13.1 assigns to tab changes rather than the
  * light impact it assigns to presses.
  */
-export function TabButton({ icon: Icon, children, isFocused, onPress, ref, ...props }: TabButtonProps) {
+export function TabButton({
+  icon: Icon,
+  children,
+  isFocused,
+  onPress,
+  ref,
+  // Dropped on purpose. TabTrigger forwards `flexDirection: 'row'` plus
+  // `justifyContent: 'space-between'`, which would shove our single child to
+  // the leading edge instead of centering it in the tab's slot.
+  style: _tabTriggerLayout,
+  ...props
+}: TabButtonProps) {
   const theme = useTheme();
   const scale = useSharedValue(1);
 
