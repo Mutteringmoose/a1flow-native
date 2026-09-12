@@ -509,14 +509,49 @@ Nothing in this section removes an existing rule unless it says RETIRED.
 - Sign in with Apple is REQUIRED on iOS (Apple 4.8 — Discord OAuth exists as a linking method).
   Backend: Cognito Apple IdP. Not yet built; Apple org enrollment 4B7SXSZNA2 approved 9/2026.
 
-### 13.3 Cache tables — one-fetch-serves-all
+### 13.3 DynamoDB tables — classified (measured 2026-09-12)
 
-- Every data surface reads a DynamoDB table populated by a cron poster. The app NEVER calls a
-  provider (FMP, UW, Massive, Yahoo, FRED) directly, and never asks a Lambda to fetch live on a
-  user's behalf. Cost is decoupled from user count by design.
-- Enumerated cache/accrual table list: OWED — fill from
-  `aws dynamodb list-tables --region us-east-2` and label each as cache (TTL'd) or accrual (no
-  TTL, Archive-Everything).
+**One-fetch-serves-all.** Every data surface reads a DynamoDB table populated by a cron poster.
+The app NEVER calls a provider (FMP, UW, Massive, Yahoo, FRED) directly, and never asks a Lambda
+to fetch live on a user's behalf. Cost is decoupled from user count by design.
+
+Source: `aws dynamodb list-tables` + `describe-time-to-live` on all 53 tables, us-east-2.
+Cache vs accrual is VERIFIED by TTL status. The "current-state" bucket is by name and
+usage convention only — treat as unverified until a session reads each table.
+Rule for the app: never call a provider; read these. Never write to any of them from the client
+except the user-state tables via their existing authed routes.
+
+#### Cache — TTL enabled, safe to lose, rebuilt by cron (13)
+A1Flow-ChainCache · A1Flow-DarkPool-Live · A1Flow-FinancialsCache · A1Flow-FredCache ·
+A1Flow-GEXCache · A1Flow-Home · A1Flow-OICache · A1Flow-OptionsFlow-Live · A1Flow-Quotes ·
+A1Flow-ReversalCharts (orphan, slated for cleanup) · A1Flow-StockIntel · A1Flow-VolumeCache ·
+A1LeapsCache
+
+#### Mixed — TTL enabled on the table, must be per-row (1)
+A1Flow-Screeners — holds the 2,518-ticker universe, dated screener boards (`{date}` + `latest`),
+AND 24h scan-temp chunks. Only the chunks may carry `ttl`. Probe 2026-09-12: 16 rows carry `ttl`,
+all scan-temp-* chunks (keys `screener_type`/`scan_date`). Universe and dated boards carry none.
+PASS.
+
+#### Accrual — no TTL, Archive-Everything, never backfillable if lost (16)
+A1Flow-AnalystTape · A1Flow-BreadthHistory · A1Flow-DarkPool-ByTicker · A1Flow-DarkPool-History ·
+A1Flow-EstimatesHistory · A1Flow-FedProbHistory · A1Flow-FedSEP · A1Flow-FedStatements ·
+A1Flow-FundingStress · A1Flow-IVHistory · A1Flow-OptionsFlow-History · A1Flow-PriceHistory ·
+A1Flow-PrintArchive · A1Flow-SectorHistory · A1Flow-SeriesArchive · CMBSFilings
+
+#### Current-state boards — no TTL, overwritten or dated by posters (by name, unverified) (17)
+A1Flow-BreakoutState · A1Flow-ConvictionBoard · A1Flow-EarningsCalendar · A1Flow-EconCalendar ·
+A1Flow-FedCalendar · A1Flow-FedWatch · A1Flow-FlowAlerts-Recent · A1Flow-HotContracts ·
+A1Flow-MacroCache (named cache, NO TTL) · A1Flow-MacroCompass · A1Flow-OIScanner ·
+A1Flow-ReversalCandidates · A1Flow-ReversalRadar · A1Flow-SectorConstituents ·
+A1Flow-SetupCardState · CMBSAggregate · MacroBriefings
+
+#### User / auth state — no TTL except OAuthState (5)
+A1Signals-Users (PK = email, lowercased) · A1Signals-Trades · A1Signals-Trials ·
+A1Flow-OAuthState (TTL `expiresAt`) · a1leaps-watchlist
+
+#### Legacy (1)
+a1leaps-screener-cache — named cache, no TTL, pre-A1Flow naming. Do not build against it.
 
 ### 13.4 Universe
 
