@@ -39,6 +39,31 @@ export function formatIndexLevel(value: number | null | undefined): string {
   });
 }
 
+/** Fixed-decimal score for a right-hand column: `1.64`. */
+export function formatScore(value: number | null | undefined, decimals = 2): string {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return '—';
+  }
+  return value.toFixed(decimals);
+}
+
+/**
+ * Calendar date, no year: `Sep 15`.
+ *
+ * Parsed as a local date, not via `new Date(iso)` — a bare `YYYY-MM-DD` is
+ * treated as UTC midnight, which renders as the previous day for anyone west
+ * of Greenwich. An earnings date that reads a day early is a real defect.
+ */
+export function formatMonthDay(isoDate: string | null | undefined): string {
+  if (!isoDate) return '—';
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate);
+  if (!match) return '—';
+  const [, year, month, day] = match;
+  const local = new Date(Number(year), Number(month) - 1, Number(day));
+  if (Number.isNaN(local.getTime())) return '—';
+  return local.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
 /**
  * Clock time for a section header: `2:00 PM`. Headers carry the annotation
  * (§5), so this is deliberately short rather than a full timestamp.

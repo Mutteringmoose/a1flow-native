@@ -1,4 +1,5 @@
 import { apiGet, type ApiGetOptions } from '@/lib/api';
+import type { EndpointState } from '@/lib/use-endpoint';
 
 /**
  * GET /home/dashboard — the Home tab's reader.
@@ -61,3 +62,17 @@ export type HomeDashboard = {
 export function getHomeDashboard(options?: ApiGetOptions): Promise<HomeDashboard> {
   return apiGet<HomeDashboard>('/home/dashboard', options);
 }
+
+/**
+ * Props for the three sections fed by this one endpoint.
+ *
+ * They are handed the result rather than each calling `useEndpoint` themselves,
+ * which would put three identical requests on the wire on every mount. The
+ * self-fetching sections stay self-fetching on purpose — their posters run on
+ * different cadences (this one hourly, the screeners daily and weekly) and
+ * coupling them to this refresh would be wrong.
+ */
+export type DashboardSectionProps = {
+  state: EndpointState<HomeDashboard>;
+  retry: () => void;
+};
