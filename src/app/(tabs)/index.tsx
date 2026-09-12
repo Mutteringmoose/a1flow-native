@@ -1,5 +1,10 @@
-import { PlaceholderScreen } from '@/components/screen';
+import { MarketFuturesSection } from '@/components/market-futures-section';
+import { Screen } from '@/components/screen';
 
 export default function HomeScreen() {
-  return <PlaceholderScreen name="Home" />;
+  return (
+    <Screen>
+      <MarketFuturesSection />
+    </Screen>
+  );
 }
