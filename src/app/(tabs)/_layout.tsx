@@ -33,7 +33,10 @@ export default function TabLayout() {
             {
               backgroundColor: theme.color.surfaceCanvas,
               borderTopWidth: theme.hairline.width,
-              borderTopColor: theme.hairline.color,
+              // border-default, not the hairline token. This divider separates
+              // chrome from content and needs to hold at 0.10; theme.hairline
+              // stays at border-subtle for content row dividers (§4 ROW GRAMMAR).
+              borderTopColor: theme.color.borderDefault,
               paddingTop: theme.space[2],
               // The row owns the bottom inset so screens do not have to.
               paddingBottom: insets.bottom || theme.space[2],

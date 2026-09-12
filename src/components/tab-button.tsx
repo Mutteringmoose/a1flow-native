@@ -40,7 +40,7 @@ export function TabButton({
     transform: [{ scale: scale.value }],
   }));
 
-  const tint = isFocused ? theme.color.navActive : theme.color.textMuted;
+  const tint = isFocused ? theme.color.navActive : theme.color.textSecondary;
 
   const handlePress = (event: GestureResponderEvent) => {
     // Only on an actual change — re-tapping the active tab is not a selection.
