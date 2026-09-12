@@ -1,6 +1,7 @@
 import { ScrollView } from 'react-native';
 
 import { MarketFutures } from '@/components/home/market-futures';
+import { Sentiment } from '@/components/home/sentiment';
 import { Screen } from '@/components/screen';
 import { getHomeDashboard } from '@/lib/home';
 import { useEndpoint } from '@/lib/use-endpoint';
@@ -23,6 +24,7 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: theme.space[8] }}
         showsVerticalScrollIndicator={false}>
         <MarketFutures state={dashboard.state} retry={dashboard.retry} />
+        <Sentiment state={dashboard.state} retry={dashboard.retry} />
       </ScrollView>
     </Screen>
   );
