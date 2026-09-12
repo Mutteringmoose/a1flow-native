@@ -2,14 +2,14 @@
 
 # A1 FLOW — NATIVE
 
-Doctrine pack v0.1 · 2026-07-25 · repo `a1flow-native` · baseline commit `b6fad7b`
+Doctrine pack v0.3 · 2026-09-12 · repo `a1flow-native` · baseline commit `b6fad7b`
 
 This file is the constitution. Brand Foundation v1 and Chart Doctrine v2 are law, not
 suggestions. Everything else in here is a canonical learned the expensive way on the web
 build — assume each line cost someone a day.
 
-**Status: INCOMPLETE.** §7 (Motion) is a stub awaiting a founder ruling. Do not implement
-any animation behaviour until it is filled in. See §7.
+**Status: §7 (Motion) is RULED as of 2026-09-12.** The ruling lives in §13.1 (§7-Native) and
+supersedes the §7 stub below. Read §13 before writing any animation behaviour.
 
 ---
 
@@ -274,9 +274,10 @@ passes on the device.**
 
 ---
 
-## 7. MOTION — ⛔ STUB, DO NOT IMPLEMENT
+## 7. MOTION — ⚠️ SUPERSEDED BY §13.1
 
-**Awaiting founder ruling. Build no animation behaviour until this section is written.**
+**Ruled 2026-09-12. §13.1 (§7-Native) governs. The section below is kept as the record of why
+the fork exists — its interim "no motion at all" rule is RETIRED.**
 
 Brand Foundation v1 §7 was authored 2026-05-17 for a **web** app and contradicts the native
 quality bar:
@@ -446,7 +447,7 @@ fine; a checkout path is not.
 
 ## 12. OPEN / OWED
 
-- **§7 motion ruling** ← blocks all animation work
+- ~~**§7 motion ruling**~~ ← RULED 2026-09-12, see §13.1
 - **Apple Developer Program purchase** ← blocks dev builds, and therefore blocks the §6 chart
   gate the moment we outgrow Expo Go
 - **Monetization ruling** ← blocks any checkout path (§10b)
@@ -458,3 +459,66 @@ fine; a checkout path is not.
 - App icon refresh
 - Line-ending normalization (`.gitattributes`) — Windows git rewrites LF→CRLF, EAS builds on
   Linux, and left alone this produces phantom whole-file diffs
+
+---
+
+## 13. DOCTRINE STATE v2 (2026-09-12)
+
+Nothing in this section removes an existing rule unless it says RETIRED.
+
+### 13.0 Priority ruling (Lo, 2026-09-12)
+
+- The phone app IS the product. a1flow.io is its desktop surface. When a rule from the web era
+  conflicts with native feel, native wins and the web rule is scoped to §-Web.
+
+### 13.1 §7-Native — Motion (Lo ruled 2026-09-12; §7-Web stays frozen for a1flow.io)
+
+- One rule: **spring where the user touched, instant everywhere else.**
+- Spring physics (Reanimated, UI thread) ALLOWED on: button/row presses, tab changes, sheet
+  enter/exit, recessed-pocket compress-on-press.
+- Haptics (expo-haptics) APPROVED: light impact on press, selection tick on tab/segment change,
+  notification success/warning only on verdict-state changes. Never on scroll, never on data
+  refresh.
+- Data readouts NEVER animate into place: no count-up tickers, no bounce on a price, score, or
+  count. The 600 ms price flash (green/red, fades) carries over from §7.3.
+- 400 ms ceiling survives as SETTLE time — a spring must be at rest within 400 ms.
+- Still BANNED: scroll-triggered reveals, parallax, ambient/looping motion, decorative
+  particles.
+- Carry over unchanged: skeleton pulse, system spinner, modal/sheet slide.
+- The interim "no motion at all" rule from v0.2 is RETIRED.
+
+### 13.2 Auth — verified facts (source: 2026-07-27 AuthBypass session, live-probed)
+
+- API Gateway `tqbn8alhp5` stage `prod` has NO authorizer. Every Lambda verifies the Cognito
+  token itself.
+- Verification is identical across all verifying functions: `token_use === 'id'`,
+  `aud === 13jliqg0pjc5mc6v2jt4o96seu`, `iss` = pool `us-east-2_ro0dkGJ9U`, `exp` in future,
+  `email` present. Send the **ID token**, not the access token — only the ID token carries
+  email, and users are keyed by email (lowercased).
+- Free-tier reader routes are DELIBERATELY unauthenticated (discovery funnel). Consequence: a
+  missing or expired token does not error at the gateway — the route silently returns the FREE-
+  tier payload shape. The client must own token expiry and refresh; never infer tier from token
+  presence (this was a live bug on web).
+- Tier truth comes from `GET /auth/me` (auto-registers on first login). Gate tiers are
+  `free | gold | diamond` (+ `diamond_plus` once the union type lands); anything else resolves
+  to free.
+- Tokens live in `expo-secure-store`. Never AsyncStorage.
+- Native calls execute-api directly (no Vercel `/api/*` rewrite exists here). React Native fetch
+  does no CORS preflight, so the sparse-OPTIONS-routes problem that blocks direct gateway calls
+  from a browser should not apply — VERIFY on the first authed call before assuming.
+- Sign in with Apple is REQUIRED on iOS (Apple 4.8 — Discord OAuth exists as a linking method).
+  Backend: Cognito Apple IdP. Not yet built; Apple org enrollment 4B7SXSZNA2 approved 9/2026.
+
+### 13.3 Cache tables — one-fetch-serves-all
+
+- Every data surface reads a DynamoDB table populated by a cron poster. The app NEVER calls a
+  provider (FMP, UW, Massive, Yahoo, FRED) directly, and never asks a Lambda to fetch live on a
+  user's behalf. Cost is decoupled from user count by design.
+- Enumerated cache/accrual table list: OWED — fill from
+  `aws dynamodb list-tables --region us-east-2` and label each as cache (TTL'd) or accrual (no
+  TTL, Archive-Everything).
+
+### 13.4 Universe
+
+- Screener universe is 2,518 tickers (as of 9/12), read from `A1Flow-Screeners`. Never hardcode
+  a ticker list in the app.
