@@ -10,6 +10,7 @@ import { SectorSeasonality } from '@/components/home/sector-seasonality';
 import { SectorHistory } from '@/components/home/sector-history';
 import { AnalystTape } from '@/components/home/analyst-tape';
 import { EarningsCalendar } from '@/components/home/earnings-calendar';
+import { EconomicCalendar } from '@/components/home/economic-calendar';
 import { Screen } from '@/components/screen';
 import { getHomeDashboard } from '@/lib/home';
 import { useEndpoint } from '@/lib/use-endpoint';
@@ -41,6 +42,7 @@ export default function HomeScreen() {
         <SectorHistory />
         <AnalystTape />
         <EarningsCalendar />
+        <EconomicCalendar state={dashboard.state} retry={dashboard.retry} />
       </ScrollView>
     </Screen>
   );
