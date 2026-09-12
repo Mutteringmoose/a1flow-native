@@ -44,19 +44,23 @@ export function Pocket({
   const theme = useTheme();
   const scale = useSharedValue(1);
 
+  // .get()/.set() rather than .value: reactCompiler is enabled in app.json, and
+  // the compiler treats a shared value as immutable, so direct .value
+  // assignment is a lint error and an optimization hazard. Both forms are
+  // first-class in Reanimated — this one survives the compiler.
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [{ scale: scale.get() }],
   }));
 
   const handlePressIn = useCallback(() => {
-    scale.value = withSpring(theme.motion.pressScale, theme.motion.press);
+    scale.set(withSpring(theme.motion.pressScale, theme.motion.press));
     // Rejects when the Taptic Engine is unavailable — Low Power Mode, camera
     // active, user disabled it. Never a reason to fail a press.
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
   }, [scale, theme]);
 
   const handlePressOut = useCallback(() => {
-    scale.value = withSpring(1, theme.motion.press);
+    scale.set(withSpring(1, theme.motion.press));
   }, [scale, theme]);
 
   return (

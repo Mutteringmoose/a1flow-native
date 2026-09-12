@@ -36,8 +36,9 @@ export function TabButton({
   const theme = useTheme();
   const scale = useSharedValue(1);
 
+  // .get()/.set(), not .value — see the note in pocket.tsx. reactCompiler is on.
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [{ scale: scale.get() }],
   }));
 
   const tint = isFocused ? theme.color.navActive : theme.color.textSecondary;
@@ -56,10 +57,10 @@ export function TabButton({
       ref={ref}
       onPress={handlePress}
       onPressIn={() => {
-        scale.value = withSpring(theme.motion.pressScale, theme.motion.press);
+        scale.set(withSpring(theme.motion.pressScale, theme.motion.press));
       }}
       onPressOut={() => {
-        scale.value = withSpring(1, theme.motion.press);
+        scale.set(withSpring(1, theme.motion.press));
       }}
       accessibilityRole="tab"
       accessibilityState={{ selected: isFocused }}
